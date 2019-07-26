@@ -1,2 +1,3 @@
-# shiny-examples
-Some examples of useful shiny features.
+# Examples of useful shiny features 
+
+This repository contains a selection of useful shiny features.
