@@ -11,5 +11,5 @@ The approach builds on two steps:
 
 You can find the app on [shinyapp.io](https://timteafan.shinyapps.io/shiny-simple-login/), given that I have still free hours of usage on my account.  
 
-This approach can be expanded by adding several features, which I show in a separate example.
+This approach can be expanded by adding several features, which I show in a separate example [here](https://github.com/TimTeaFan/shiny-examples/tree/master/shiny-adv-login).
 
