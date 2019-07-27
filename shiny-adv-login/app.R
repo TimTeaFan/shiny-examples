@@ -162,7 +162,7 @@ shinyApp(
                              
                              plotOutput(outputId = "distPlot"),
                              fluidRow(
-                               downloadButton('downloadPlot_water', 'Download Plot'),
+                               downloadButton('downloadPlot', 'Download Plot'),
                                align = "right", offset = 10, style = 'padding:0px;'
                              )
                              
@@ -226,7 +226,7 @@ shinyApp(
           # condition which checks the users access rights as specified in logs/user_dat.rds
           if ((user$dat[user$dat$user == input$username, ]$access == "manager") && input$tabselected == 3) { #  
             
-          selectInput("region", "Select region: (only available for managers)",
+          selectInput("region", HTML("Select region:<br> (only available for managers)"),
                       list("East", "West", "South", "North"))
           }
 
@@ -242,8 +242,8 @@ shinyApp(
         ggtitle("Histogram of waiting times")
       
       print(p)
-      
-    })
+    
+      })
     
     # plot output 
     output$distPlot <- renderPlot({
@@ -262,26 +262,26 @@ shinyApp(
     # download handler
     output$downloadPlot <- downloadHandler(
 
-      filename = function() { paste0("logs/plots/", gsub("-|\\:| ", "", as.Date(Sys.time())), "bins_nr_", input$bins,".png") },
-
+      filename = function() { paste0("logs/plots/", gsub("-|\\:| ", "", as.Date(Sys.time())), "_bins_", input$bins,".png") },
+      
       content = function(file) {
-        ggsave(file, plot = plotInput(), device = "png")
+        ggsave(file,
+               plot = plotInput(),
+               device = "png")
         rv$download_flag <- rv$download_flag + 1
-
       }
     )
+    
       
-    # observe for ggsave
+    # observeEvent for ggsave
     observeEvent(rv$download_flag, {
-        
-    ggsave(paste0("logs/plots/", input$username, gsub("-|\\:| ", "", as.Date(Sys.time())), "bins_nr_", input$bins,".png"),
+
+      ggsave(paste0("logs/plots/", input$username, "_", gsub("-|\\:| ", "", as.Date(Sys.time())), "_bins_", input$bins,".png"),
                plot = plotInput(),
                device = "png")
       }, ignoreInit = TRUE)
-    
-    
-    
-    
-    
+
+
   } # Closes server
+  
 ) # Closes ShinyApp
