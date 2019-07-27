@@ -10,11 +10,8 @@ shinyApp(
   ui = fluidPage(
     
     useShinyjs(),  # Set up shinyjs
-    shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); }"),
+    shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); 
     
-    titlePanel("Shiny advanced login",
-               windowTitle = "shiny login"),
-
     # Layout mit Sidebar
     sidebarLayout(
       
@@ -61,8 +58,8 @@ shinyApp(
                    tableOutput("table"),
                    textOutput("text")
                    # tags$div(class="header", checked = NA,
-                   #          tags$p("This is a simple shiny login workaround without using shiny server pro."),
-                   #          tags$p("Try username 'user123' and password 'password1'."),
+                   #          tags$p("This app combines a shiny login workaround (without relying on shiny server pro) with several additional features."),
+                   #          tags$p("The following username/password combinations can be used: user 'worker' / pass 'workerlogin'; user 'boss' / pass 'bosslogin'."),
                    #          tags$a(href="shiny.rstudio.com/tutorial", "View code on GitHub")
                    # )
                    
@@ -95,7 +92,7 @@ shinyApp(
         if (checkpw(input$password, user$dat[user$dat$user == str_to_lower(input$username), ]$pass)) {
         # if (input$password == unname(user$dat$pass[str_to_lower(input$username)])) {
           
-          # nulls the user_his login attempts and saves this on server
+          # nulls login attempts in user_his and saves this on server
           user$his[str_to_lower(input$username)] <- 0
           saveRDS(user$his, file = "logs/user_his.rds")
           
