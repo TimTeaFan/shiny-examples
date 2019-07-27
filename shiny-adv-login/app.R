@@ -5,6 +5,7 @@ library("shinyjs")
 library("stringr")
 library("bcrypt")
 library("ggplot2")
+library("V8")
 
 shinyApp(
   
