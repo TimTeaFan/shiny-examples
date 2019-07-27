@@ -1,17 +1,24 @@
-#
+# Advanced shiny login example
 
 library("shiny")
 library("shinyjs")
 library("stringr")
+library("bcrypt")
 
+# // This recieves messages of type "testmessage" from the server.
+# Shiny.addCustomMessageHandler("testmessage",
+#                               function(message) {
+#                                   alert(JSON.stringify(message));
+#                               }
+# );
 
 shinyApp(
   
   ui = fluidPage(
     
     useShinyjs(),  # Set up shinyjs
-    # shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); }"),
-    
+    shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); }"),
+
     # Layout mit Sidebar
     sidebarLayout(
       
@@ -20,8 +27,8 @@ shinyApp(
         div(id = "Sidebar", sidebarPanel(
           
           # > some example input on sidebar -----
-          # actionButton("refresh", "Logout"),
-          # br(),
+          actionButton("refresh", "Logout"),
+          br(),
           
           conditionalPanel(
             condition = "input.tabselected > 1",
@@ -72,14 +79,35 @@ shinyApp(
   # Server ------
   server = function(input, output, session){
     
-    user_vec <- c("user123" = "password1",
-                  "user456" = "password2")
+    user <- reactiveValues(his = readRDS(file = "logs/user_his.rds"),
+                           log = readRDS(file = "logs/user_log.rds"),
+                           dat = readRDS(file = "logs/user_dat.rds"))
+
+
+    
     
     observeEvent(input$login, {
       
-      if (str_to_lower(input$username) %in% names(user_vec)) { # is username in user_vec?
+      # is username in user_dat and has less than three login attempts?
+      if (str_to_lower(input$username) %in% names(user$dat[user$his < 3])) {  
         
+        # 
         if (input$password == unname(user_vec[str_to_lower(input$username)])) {
+          
+          # nulls the user_his login attempts and saves this on server
+          user$his[str_to_lower(input$username)] <- 0
+          saveRDS(user$his, file = "logs/user_his.rds")
+          
+          # saves a temp log file
+          user_log_temp <- data.frame(username = str_to_lower(input$username),
+                                     timestamp = Sys.time())
+          
+          # saves temp log in reactive value
+          user$log <- rbind(user$log, user_log_temp)
+          
+          # saves reactive value on server
+          saveRDS(user$log, file = "logs/user_log.rds")
+          
 
           # > Add MainPanel and Sidebar----------
           shinyjs::show(id = "Sidebar")
