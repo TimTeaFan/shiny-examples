@@ -10,7 +10,8 @@ shinyApp(
   ui = fluidPage(
     
     useShinyjs(),  # Set up shinyjs
-  
+    # shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); }"),
+    
     # Layout mit Sidebar
     sidebarLayout(
       
@@ -19,6 +20,8 @@ shinyApp(
         div(id = "Sidebar", sidebarPanel(
           
           # > some example input on sidebar -----
+          # actionButton("refresh", "Logout"),
+          # br(),
           
           conditionalPanel(
             condition = "input.tabselected > 1",
@@ -121,7 +124,7 @@ shinyApp(
      
         } # closes if-clause
         
-      } else { # username name wrong 
+      } else { #username name wrong 
         
         # specify if needed
         
