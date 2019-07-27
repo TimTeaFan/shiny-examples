@@ -271,7 +271,6 @@ shinyApp(
         rv$download_flag <- rv$download_flag + 1
       }
     )
-    
       
     # observeEvent for ggsave
     observeEvent(rv$download_flag, {
