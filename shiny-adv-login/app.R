@@ -4,32 +4,39 @@ library("shiny")
 library("shinyjs")
 library("stringr")
 library("bcrypt")
+library("ggplot2")
 
 shinyApp(
   
   ui = fluidPage(
     
-    useShinyjs(),  # Set up shinyjs
-    shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); 
+    # Set up shinyjs
+    useShinyjs(), 
     
-    # Layout mit Sidebar
+    # javascript refresh function for logout button
+    shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); }"), 
+    
+    # Layout wtih sidebar
     sidebarLayout(
       
       ## Sidebar -----
-      shinyjs::hidden(
+      shinyjs::hidden( # hide sidebar on login tab
+        
         div(id = "Sidebar", sidebarPanel(
           
           # > some example input on sidebar -----
-          actionButton("refresh", "Logout"),
+          # actionButton("refresh", "Logout"),
           br(),
           
           conditionalPanel(
-            condition = "input.tabselected > 1",
-            dateRangeInput(inputId = "date",
-                           label = "Choose date range",
-                           start = "2018-06-25", end = "2019-01-01",
-                           min = "2018-06-25", max = "2019-01-01",
-                           startview = "year")),
+            condition = "input.tabselected == 4",
+            sliderInput(inputId = "bins",
+                        label = "Number of bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30)
+            
+          ),
           
           uiOutput("UI_input")
           
@@ -55,13 +62,15 @@ shinyApp(
                    actionButton("login", "login"),
                    br(),
                    br(),
-                   tableOutput("table"),
-                   textOutput("text")
-                   # tags$div(class="header", checked = NA,
-                   #          tags$p("This app combines a shiny login workaround (without relying on shiny server pro) with several additional features."),
-                   #          tags$p("The following username/password combinations can be used: user 'worker' / pass 'workerlogin'; user 'boss' / pass 'bosslogin'."),
-                   #          tags$a(href="shiny.rstudio.com/tutorial", "View code on GitHub")
-                   # )
+                   tags$div(class="header", checked = NA,
+                            tags$p("This app shows a shiny login workaround with several additional features."),
+                            tags$p("Shiny server pro is not necessary for any of the features presented in this app."),
+                            tags$p("The following username/password combinations can be used:"),
+                            tags$p("user: 'worker' // pass: 'workerlogin'"),
+                            tags$p("user: 'boss'   // pass: 'bosslogin'."),
+                            tags$a(href="https://github.com/TimTeaFan/shiny-examples/tree/master/shiny-adv-login",
+                                   "View code on GitHub")
+                   )
                    
           ), # closes tabPanel
           
@@ -115,10 +124,9 @@ shinyApp(
                     tabPanel("Welcome tab",
                              value = 2,
                              br(),
-                             tags$div(class="body", checked = NA,
-                                      tags$p("Congratulations! You successfully logged in."),
-                                      tags$a(href = "shiny.rstudio.com/tutorial",
-                                             "Here you can find a more fleshed out example combining several features.")
+                             tags$div(class = "body", checked = NA,
+                                      tags$p(paste("Congratulations! You successfully logged in as ", input$username, ".")),
+                                      tags$p("Have a look around and then login as a different user.")
                              )
                              
                     ) # closes tabPanel,
@@ -131,16 +139,41 @@ shinyApp(
             appendTab(inputId = "tabselected",
                     
                     tabPanel("Manager tab",
-                             value = 3
+                             value = 3,
+                             
+                             br(),
+                             br(),
+                             
+                             tags$div(class="header", checked = NA,
+                                      tags$p("This panel can only be viewed by users with access to domain 'manager'."),
+                                      tags$p("When you login as 'worker' this panel will not be visible to you.")
+                             )
                              
                     ) # closes tabPanel,
           )}
           
+          # tab which contains plot 
           appendTab(inputId = "tabselected",
                     
-                    tabPanel("General tab",
+                    tabPanel("Plot tab",
                              
-                             value = 4
+                             value = 4,
+                             
+                             plotOutput(outputId = "distPlot"),
+                             fluidRow(
+                               downloadButton('downloadPlot_water', 'Download Plot'),
+                               align = "right", offset = 10, style = 'padding:0px;'
+                             )
+                             
+                    ) # closes tabPanel         
+          )
+          
+          # Last tab is used as an action button to reload the app, and thereby force the user to logout
+          appendTab(inputId = "tabselected",
+                    
+                    tabPanel("Logout",
+                             
+                             value = 5
                              
                     ) # closes tabPanel         
           )
@@ -179,19 +212,74 @@ shinyApp(
       
     }) # closes observeEvent
     
-    observeEvent(input$refresh, {
-      shinyjs::js$refresh()
+    # 
+    observe({input$tabselected
+          if (input$tabselected == 5) {
+            shinyjs::js$refresh()
+          }
     })
-      
+    
+    # render UI input based on access rights  
     output$UI_input <- renderUI({
           
-          if (user$dat[user$dat$user == input$username, ]$access == "manager") {
+          # condition which checks the users access rights as specified in logs/user_dat.rds
+          if ((user$dat[user$dat$user == input$username, ]$access == "manager") && input$tabselected == 3) { #  
             
-          selectInput("region", "Select region:",
+          selectInput("region", "Select region: (only available for managers)",
                       list("East", "West", "South", "North"))
           }
 
     })
+    
+    # Plot ------
+    # reactive input that can be used for download hanlder
+    plotInput <- reactive({
+      
+      p <- ggplot(faithful, aes(x = waiting)) +
+        geom_histogram(bins = input$bins) +
+        xlab("Waiting time to next eruption (in mins)") +
+        ggtitle("Histogram of waiting times")
+      
+      print(p)
+      
+    })
+    
+    # plot output 
+    output$distPlot <- renderPlot({
+    
+      print(plotInput())
+      
+    })
+    
+    # Download plot -------
+    # this downdload handler not only enables users to download the respective plot, but it will
+    # also save a copy in the server log files
+    
+    # download handler flag
+    rv <- reactiveValues(download_flag = 0)
+    
+    # download handler
+    output$downloadPlot <- downloadHandler(
+
+      filename = function() { paste0("logs/plots/", gsub("-|\\:| ", "", as.Date(Sys.time())), "bins_nr_", input$bins,".png") },
+
+      content = function(file) {
+        ggsave(file, plot = plotInput(), device = "png")
+        rv$download_flag <- rv$download_flag + 1
+
+      }
+      
+    # observe for ggsave
+    observeEvent(rv$download_flag, {
+        
+    ggsave(paste0("logs/plots/", input$username, gsub("-|\\:| ", "", as.Date(Sys.time())), "bins_nr_", input$bins,".png"),
+               plot = plotInput(),
+               device = "png")
+      }, ignoreInit = TRUE)
+    
+    )
+    
+    
     
   } # Closes server
 ) # Closes ShinyApp
