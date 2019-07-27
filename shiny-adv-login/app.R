@@ -126,7 +126,7 @@ shinyApp(
                              value = 2,
                              br(),
                              tags$div(class = "body", checked = NA,
-                                      tags$p(paste("Congratulations! You successfully logged in as ", input$username, ".")),
+                                      tags$p(paste("Congratulations! You successfully logged in as '", input$username, "'.")),
                                       tags$p("Have a look around and then login as a different user.")
                              )
                              
