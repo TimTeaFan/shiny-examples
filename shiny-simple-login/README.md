@@ -1,6 +1,6 @@
 # Simple shiny login without using shiny server
 
-A common question among shiny users is, how to create a login page without relying on shiny server pro. There are different implementations achieving this, some of them can be found on StackOverflow. I have created an appraoch which tries to keep things as simple as possible relying on `shinjs` and `appendTab` `removeTab`.
+A common question among shiny users is, how to create a login page without relying on shiny server pro. There are different implementations achieving this, some of them can be found on StackOverflow. I have created an approach which tries to keep things as simple as possible relying on `shinjs` and `appendTab` `removeTab`.
 
 It might help those, who do not want to work with two separate UI functions.
 
