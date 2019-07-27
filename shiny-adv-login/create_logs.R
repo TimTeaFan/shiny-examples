@@ -1,4 +1,4 @@
-# create user_dat, user_his and user_log
+# create user_dat and user_his 
 library("bcrypt")
 
 
@@ -18,13 +18,16 @@ user_dat <- data.frame(user = c("worker",
                                 "$2a$12$/qQoLFAPJoA.UgdVN8iYZOKrVW1e37xpDYtyc2/IUq36hNiSS5cnK"),
                        
                        access = c("user",
-                                  "manager")
+                                  "manager"),
+                       
+                       stringsAsFactors = FALSE
                        )
 
 # create user_his
 # this vector will record the number of login attempts
-user_his <- vector(mode = "integer", length = length(user_dat))
-names(user_his) <- names(user_dat$user)
+user_his <- vector(mode = "integer", length = nrow(user_dat))
+names(user_his) <- unlist(user_dat$user)
 
-# create user_log
-# 
+# save files
+saveRDS(user_dat, file = "shiny-adv-login/logs/user_dat.rds")
+saveRDS(user_his , file = "shiny-adv-login/logs/user_his.rds")
