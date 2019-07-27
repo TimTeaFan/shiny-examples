@@ -5,9 +5,9 @@ account: timteafan
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1054043
-bundleId: 2270127
+bundleId: 2270135
 url: https://timteafan.shinyapps.io/shiny-adv-login/
-when: 1564259002.37688
+when: 1564259316.64266
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: create_logs.R
