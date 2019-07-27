@@ -82,10 +82,12 @@ shinyApp(
     observeEvent(input$login, {
       
       # is username in user_dat and has less than three login attempts?
-      if (str_to_lower(input$username) %in% names(user$dat[user$his < 3])) {  
+      if (str_to_lower(input$username) %in% user$dat$users[user$his < 3]) { 
+      # if (str_to_lower(input$username) %in% names(user$dat[user$his < 3])) {  
         
-        # 
-        if (input$password == unname(user_vec[str_to_lower(input$username)])) {
+        # does password match?
+        if (checkpw(input$password, user$dat[user$dat$user == str_to_lower(input$username), ]$pass)) {
+        # if (input$password == unname(user$dat$pass[str_to_lower(input$username)])) {
           
           # nulls the user_his login attempts and saves this on server
           user$his[str_to_lower(input$username)] <- 0

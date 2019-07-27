@@ -28,6 +28,11 @@ user_dat <- data.frame(user = c("worker",
 user_his <- vector(mode = "integer", length = nrow(user_dat))
 names(user_his) <- unlist(user_dat$user)
 
+# create empty user_log
+user_log <- data.frame(username = c(),
+                      timestamp = c())
+
 # save files
 saveRDS(user_dat, file = "shiny-adv-login/logs/user_dat.rds")
 saveRDS(user_his , file = "shiny-adv-login/logs/user_his.rds")
+saveRDS(user_log , file = "shiny-adv-login/logs/user_log.rds")
