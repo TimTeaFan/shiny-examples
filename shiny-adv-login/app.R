@@ -5,13 +5,6 @@ library("shinyjs")
 library("stringr")
 library("bcrypt")
 
-# // This recieves messages of type "testmessage" from the server.
-# Shiny.addCustomMessageHandler("testmessage",
-#                               function(message) {
-#                                   alert(JSON.stringify(message));
-#                               }
-# );
-
 shinyApp(
   
   ui = fluidPage(
@@ -148,22 +141,39 @@ shinyApp(
           
         } else { # username correct, password wrong
           
-          # specify if needed
+          # adds a login attempt to user_his 
+          user$his[str_to_lower(input$username)] <- user$his[str_to_lower(input$username)] + 1
+
+          # saves user_his on server
+          saveRDS(user$his, file = "logs/user_his.rds")
+          
+          # Messge which shows how many log-in tries are left
+          session$sendCustomMessage(type = 'loginmessage',
+                                    message = paste0('Password not correct. ',
+                                                     'Remaining log-in attempts: ',
+                                                     3 - user$his[str_to_lower(input$username)]
+                                    )
+          )
      
         } # closes if-clause
         
-      } else { #username name wrong 
+      } else { #username wrong 
         
-        # specify if needed
+        # Send error messages with javascript message handler
+
+        session$sendCustomMessage(type = 'loginmessage',
+                                  message = paste0('Wrong username or user blocked.')
+        )
+        
         
       } # closes second if-clause
       
     }) # closes observeEvent
     
     
-    # observeEvent(input$refresh, {
-    #   shinyjs::js$refresh()
-    # })
+    observeEvent(input$refresh, {
+      shinyjs::js$refresh()
+    })
     
     
     
