@@ -50,7 +50,7 @@ shinyApp(
                    tags$div(class="header", checked = NA,
                             tags$p("This is a simple shiny login workaround without using shiny server pro."),
                             tags$p("Try username 'user123' and password 'password1'."),
-                            tags$a(href="shiny.rstudio.com/tutorial", "View code on GitHub")
+                            tags$a(href="https://github.com/TimTeaFan/shiny-examples/tree/master/shiny-simple-login", "View code on GitHub")
                    )
                    
           ), # closes tabPanel
