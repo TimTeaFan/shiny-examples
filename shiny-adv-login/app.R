@@ -32,7 +32,10 @@ shinyApp(
                            label = "Choose date range",
                            start = "2018-06-25", end = "2019-01-01",
                            min = "2018-06-25", max = "2019-01-01",
-                           startview = "year")) 
+                           startview = "year")),
+          
+          uiOutput("UI_input")
+          
           
            ) # closes Sidebar-Panel
           ) # closes div
@@ -55,11 +58,13 @@ shinyApp(
                    actionButton("login", "login"),
                    br(),
                    br(),
-                   tags$div(class="header", checked = NA,
-                            tags$p("This is a simple shiny login workaround without using shiny server pro."),
-                            tags$p("Try username 'user123' and password 'password1'."),
-                            tags$a(href="shiny.rstudio.com/tutorial", "View code on GitHub")
-                   )
+                   tableOutput("table"),
+                   textOutput("text")
+                   # tags$div(class="header", checked = NA,
+                   #          tags$p("This is a simple shiny login workaround without using shiny server pro."),
+                   #          tags$p("Try username 'user123' and password 'password1'."),
+                   #          tags$a(href="shiny.rstudio.com/tutorial", "View code on GitHub")
+                   # )
                    
           ), # closes tabPanel
           
@@ -80,15 +85,11 @@ shinyApp(
     user <- reactiveValues(his = readRDS(file = "logs/user_his.rds"),
                            log = readRDS(file = "logs/user_log.rds"),
                            dat = readRDS(file = "logs/user_dat.rds"))
-
-
-    
     
     observeEvent(input$login, {
       
       # is username in user_dat and has less than three login attempts?
-      if (str_to_lower(input$username) %in% user$dat$users[user$his < 3]) { 
-      # if (str_to_lower(input$username) %in% names(user$dat[user$his < 3])) {  
+      if (str_to_lower(input$username) %in% user$dat$user[user$his < 3]) { # 
         
         # does password match?
         if (checkpw(input$password, user$dat[user$dat$user == str_to_lower(input$username), ]$pass)) {
@@ -114,29 +115,33 @@ shinyApp(
           
           appendTab(inputId = "tabselected",
                     
-                    tabPanel("Tab 1",
+                    tabPanel("Welcome tab",
                              value = 2,
                              br(),
                              tags$div(class="body", checked = NA,
                                       tags$p("Congratulations! You successfully logged in."),
-                                      tags$a(href = "shiny.rstudio.com/tutorial", "Here you can find a more fleshed out example combining several features.")
+                                      tags$a(href = "shiny.rstudio.com/tutorial",
+                                             "Here you can find a more fleshed out example combining several features.")
                              )
                              
                     ) # closes tabPanel,
                     
           )
           
-          appendTab(inputId = "tabselected",
+          # add a tab which can only accessed by certain users ("managers" in this example)
+          if (user$dat[user$dat$user == input$username, ]$access == "manager") {
+            
+            appendTab(inputId = "tabselected",
                     
-                    tabPanel("Tab 2",
+                    tabPanel("Manager tab",
                              value = 3
                              
                     ) # closes tabPanel,
-          )
+          )}
           
           appendTab(inputId = "tabselected",
                     
-                    tabPanel("Tab 3",
+                    tabPanel("General tab",
                              
                              value = 4
                              
@@ -177,12 +182,19 @@ shinyApp(
       
     }) # closes observeEvent
     
-    
     observeEvent(input$refresh, {
       shinyjs::js$refresh()
     })
-    
-    
+      
+    output$UI_input <- renderUI({
+          
+          if (user$dat[user$dat$user == input$username, ]$access == "manager") {
+            
+          selectInput("region", "Select region:",
+                      list("East", "West", "South", "North"))
+          }
+
+    })
     
   } # Closes server
 ) # Closes ShinyApp
