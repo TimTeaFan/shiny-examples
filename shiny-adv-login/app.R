@@ -11,6 +11,9 @@ shinyApp(
     
     useShinyjs(),  # Set up shinyjs
     shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); }"),
+    
+    titlePanel("Shiny advanced login",
+               windowTitle = "shiny login"),
 
     # Layout mit Sidebar
     sidebarLayout(
@@ -47,6 +50,8 @@ shinyApp(
                    br(),
                    textInput("username", "username"),
                    passwordInput("password", label = "password"),
+                   tags$head(tags$script(src = "message-handler.js"),
+                             tags$script(src = "login-button.js")),
                    actionButton("login", "login"),
                    br(),
                    br(),
