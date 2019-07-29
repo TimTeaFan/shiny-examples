@@ -1,4 +1,4 @@
-o # Advanced shiny login example
+# Advanced shiny login example
 
 This example combines a [simple shiny login](https://github.com/TimTeaFan/shiny-examples/tree/master/shiny-simple-login) approach with following additional features:
 
